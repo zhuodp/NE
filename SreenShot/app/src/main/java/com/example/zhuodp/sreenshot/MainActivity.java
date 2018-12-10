@@ -23,22 +23,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btnNormalSreenShot = (Button)findViewById(R.id.btn_normalScreenShot);
-        imgScreenShotResult =(ImageView)findViewById(R.id.id_screenShotResult);
-
         setListener();
 
     }
 
+    private void findView(){
+        btnNormalSreenShot = (Button)findViewById(R.id.btn_normalScreenShot);
+        imgScreenShotResult =(ImageView)findViewById(R.id.id_screenShotResult);
+
+    }
     private void setListener(){
         btnNormalSreenShot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imgScreenShotResult.setImageBitmap(screenShotWholeScreen());
+                //方案1
+                //imgScreenShotResult.setImageBitmap(screenShotWholeScreen());
+                //方案2
+                imgScreenShotResult.setImageBitmap(screenShotSingleView(btnNormalSreenShot));
             }
         });
     }
 
+    //方案1：不带状态栏
     private Bitmap screenShotWholeScreen(){
         View mView = getWindow().getDecorView();
         mView.setDrawingCacheEnabled(true);
@@ -55,8 +61,15 @@ public class MainActivity extends AppCompatActivity {
 
         return mScreenShotResult;
     }
+    //方案1的衍生：截取某个view在屏幕内的可见区域(初步测试可行)
+    private Bitmap screenShotSingleView(View view){
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
+        return bitmap;
+    }
 
-
+    
 
     /**
      * A native method that is implemented by the 'native-lib' native library,
