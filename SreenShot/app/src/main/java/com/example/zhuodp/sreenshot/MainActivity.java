@@ -42,48 +42,82 @@ import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity {
+
     private Button btnNormalSreenShot;
+    private Button btnLinearLayoutScreenShot;
     private ImageView imgScreenShotResult;
-
-
-    // Used to load the 'native-lib' library on application startup.
-    static {
-        System.loadLibrary("native-lib");
-    }
-
+    private ListView listView  ;
+    ArrayList<Integer> listViewData =new ArrayList<Integer>() ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findView();
+        initData();
         setListener();
 
     }
 
+
+
+
+
+
+
     private void findView(){
         btnNormalSreenShot = (Button)findViewById(R.id.btn_normalScreenShot);
+        btnLinearLayoutScreenShot =(Button)findViewById(R.id.btn_linearLayoutScreenShot);
         imgScreenShotResult =(ImageView)findViewById(R.id.id_screenShotResult);
+        listView = (ListView)findViewById(R.id.listView);
 
+    }
+    private void initData(){
+        for(int i =0;i<10;i++){
+            listViewData.add(i);
+        }
+
+        ArrayAdapter<Integer> listViewAdapter =new ArrayAdapter<Integer>(
+                MainActivity.this,android.R.layout.simple_list_item_1,listViewData);
+
+        listView.setAdapter(listViewAdapter);
     }
     private void setListener(){
         btnNormalSreenShot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //方案1
-                //imgScreenShotResult.setImageBitmap(screenShotWholeScreen());
+
+                //方案1：普通截屏
+                imgScreenShotResult.setImageBitmap(screenShotWholeScreen());
                 //方案1衍生：截取View
                 //imgScreenShotResult.setImageBitmap(screenShotSingleView(btnNormalSreenShot));
                 //方案2 ：针对WebView
                 //imgScreenShotResult.setImageBitmap(screenShotOnWebView());
             }
         });
+
+        //针对LinearLayout
+        btnLinearLayoutScreenShot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LinearLayout linearLayout = (LinearLayout)findViewById(R.id.linearLayout);
+                imgScreenShotResult.setImageBitmap(getLinearLayoutBitmap(linearLayout));
+            }
+        });
+
+
     }
 
     //方案1：不带状态栏
@@ -121,6 +155,25 @@ public class MainActivity extends Activity {
         return bmp;
     }
 
+    //长截屏;
+    //方案一：针对LinearLayout和ScrollView(未考虑内部嵌套其他可拖动view)
+    public static Bitmap getLinearLayoutBitmap(LinearLayout linearLayout) {
+        int h = 0;
+        Bitmap bitmap;
+        for (int i = 0; i < linearLayout.getChildCount(); i++) {
+            h += linearLayout.getChildAt(i).getHeight();
+        }
+        // 创建对应大小的bitmap
+        bitmap = Bitmap.createBitmap(linearLayout.getWidth(), h,
+                Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(bitmap);
+        linearLayout.draw(canvas);
+        return bitmap;
+    }
+
+
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -132,6 +185,11 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
+
+    // Used to load the 'native-lib' library on application startup.
+    static {
+        System.loadLibrary("native-lib");
+    }
     /**
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
