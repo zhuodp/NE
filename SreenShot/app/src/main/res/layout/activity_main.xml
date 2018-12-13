@@ -12,8 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:text="普通截屏"
-        android:textSize="20sp" />
+        android:text="普通截屏"/>
 
     <Button
         android:id="@+id/btn_linearLayoutScreenShot"
@@ -41,19 +40,42 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
         android:text="长截屏"
+        android:id="@+id/btn_longScreenScreenShot"
         android:layout_below="@id/btn_normalScreenShot"/>
 
+    <Button
+        android:id="@+id/btn_singleViewScreenShot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="单个View"
+        android:layout_toRightOf="@id/btn_longScreenScreenShot"
+        android:layout_below="@id/btn_linearLayoutScreenShot"/>
 
-    <ImageView
-        android:id="@+id/id_screenShotResult"
-        android:layout_width="200dp"
-        android:layout_height="300dp"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_below="@id/btn_longScreenScreenShot"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:id="@+id/id_scrollView"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/btn_normalScreenShot"
-        android:layout_gravity="center_horizontal">
-    </ImageView>
+        >
+        <ImageView
+            android:id="@+id/id_screenShotResult"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal">
+        </ImageView>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/tv_separation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:layout_below="@id/id_scrollView"/>
+
 
 
 
@@ -61,24 +83,22 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/id_screenShotResult"
+        android:layout_below="@id/tv_separation"
         android:background="#ffffff">
         <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/linearLayout"
+            android:layout_below="@id/tv_separation"
             android:id="@+id/listView"/>
     </LinearLayout>
+
+
     <Button
+        android:id="@+id/btn_outOfBoundsTest"
         android:layout_width="wrap_content"
         android:layout_height="800dp"
         android:textSize="15sp"
         android:text="Out of Bounds"
-        android:layout_below="@id/linearLayout"
-        />
-
-
-
-
+        android:layout_below="@id/linearLayout" />
 
 </RelativeLayout>
