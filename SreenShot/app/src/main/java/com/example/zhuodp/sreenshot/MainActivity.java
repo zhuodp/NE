@@ -14,22 +14,18 @@ package com.example.zhuodp.sreenshot;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-<<<<<<< HEAD
-import android.graphics.Picture;
-import android.graphics.PixelFormat;
-=======
 import android.graphics.Paint;
 import android.graphics.Picture;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
->>>>>>> dev
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.Image;
@@ -38,52 +34,37 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.AsyncTask;
 import android.os.Build;
-<<<<<<< HEAD
-=======
 import android.os.Environment;
->>>>>>> dev
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-<<<<<<< HEAD
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.Surface;
-import android.view.View;
-=======
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
->>>>>>> dev
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-<<<<<<< HEAD
-=======
 import android.widget.ListAdapter;
->>>>>>> dev
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-<<<<<<< HEAD
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-=======
+import com.example.zhuodp.sreenshot.ScreenShotUtils.ScreenShotHelper;
+import com.example.zhuodp.sreenshot.ScreenShotUtils.ShotApplication;
 import com.pgssoft.scrollscreenshot.ScrollScreenShot;
 
 import java.io.File;
@@ -92,20 +73,24 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
->>>>>>> dev
+import static android.content.ContentValues.TAG;
+
 public class MainActivity extends Activity {
 
     private Button btnNormalSreenShot;
     private Button btnLinearLayoutScreenShot;
-<<<<<<< HEAD
-    private ImageView imgScreenShotResult;
-    private ListView listView  ;
-=======
     private Button btnListViewScreenShot;
-    private ImageView imgScreenShotResult;
+    private Button btnWholeScreenScreenShot;
+    public static ImageView imgScreenShotResult;
     private ListView listView;
     private LinearLayout linearLayout;
->>>>>>> dev
+
+    private int result = 0;
+    private Intent intent = null;
+    private int REQUEST_MEDIA_PROJECTION = 1;
+    private MediaProjectionManager mMediaProjectionManager;
+
+    private ScreenShotHelper screenShotHelper;
     ArrayList<Integer> listViewData =new ArrayList<Integer>() ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,43 +98,35 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         findView();
         initData();
+        ScreenShotHelper screenShotHelper = new ScreenShotHelper();
         setListener();
     }
 
 
 
-
-
-
-
-<<<<<<< HEAD
-    private void findView(){
-        btnNormalSreenShot = (Button)findViewById(R.id.btn_normalScreenShot);
-        btnLinearLayoutScreenShot =(Button)findViewById(R.id.btn_linearLayoutScreenShot);
-=======
-
     private void findView(){
         btnNormalSreenShot = (Button)findViewById(R.id.btn_normalScreenShot);
         btnLinearLayoutScreenShot =(Button)findViewById(R.id.btn_linearLayoutScreenShot);
         btnListViewScreenShot =(Button)findViewById(R.id.btn_listViewSreenShot);
->>>>>>> dev
+        btnWholeScreenScreenShot =(Button)findViewById(R.id.btn_wholeScreenScreenShot);
+
         imgScreenShotResult =(ImageView)findViewById(R.id.id_screenShotResult);
         listView = (ListView)findViewById(R.id.listView);
 
     }
     private void initData(){
-<<<<<<< HEAD
-        for(int i =0;i<10;i++){
-=======
-        for(int i =0;i<90;i++){
->>>>>>> dev
+        for (int i =1;i<=20;i++){
             listViewData.add(i);
         }
+        listView= (ListView) findViewById(R.id.listView);
+        ArrayAdapter<Integer> arrayAdapter = new ArrayAdapter<Integer>(MainActivity.this, android.R.layout.simple_expandable_list_item_1,listViewData);
+        listView.setAdapter(arrayAdapter);
 
-        ArrayAdapter<Integer> listViewAdapter =new ArrayAdapter<Integer>(
-                MainActivity.this,android.R.layout.simple_list_item_1,listViewData);
+        screenShotHelper = new ScreenShotHelper();
 
-        listView.setAdapter(listViewAdapter);
+        mMediaProjectionManager = (MediaProjectionManager)getApplication().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        //获取录屏权限
+        startIntent();
     }
     private void setListener(){
         btnNormalSreenShot.setOnClickListener(new View.OnClickListener() {
@@ -157,7 +134,7 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
 
                 //方案1：普通截屏
-                imgScreenShotResult.setImageBitmap(screenShotWholeScreen());
+                imgScreenShotResult.setImageBitmap(screenShotNormalScreen());
                 //方案1衍生：截取View
                 //imgScreenShotResult.setImageBitmap(screenShotSingleView(btnNormalSreenShot));
                 //方案2 ：针对WebView
@@ -169,10 +146,6 @@ public class MainActivity extends Activity {
         btnLinearLayoutScreenShot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-<<<<<<< HEAD
-                LinearLayout linearLayout = (LinearLayout)findViewById(R.id.linearLayout);
-                imgScreenShotResult.setImageBitmap(getLinearLayoutBitmap(linearLayout));
-=======
                 linearLayout = (LinearLayout)findViewById(R.id.linearLayout);
                 imgScreenShotResult.setImageBitmap(screenShotOnLinearLayout(linearLayout));
             }
@@ -182,19 +155,29 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                //imgScreenShotResult.setImageBitmap(screenShotOnListView(listView));
+                imgScreenShotResult.setImageBitmap(screenShotOnListView(listView));
                 Log.d("zhuodp","on Click");
-                screenShotOnScrollableView();
-                start();
->>>>>>> dev
+                //screenShotOnScrollableView();
+                //start();
+
             }
         });
 
+        btnWholeScreenScreenShot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("zhuodp","整屏截图");
+                Bitmap bitmap = screenShotHelper.sreenShotOnWholeScreen(getApplicationContext());
+
+                screenShotHelper.setUpMediaProjection(getApplicationContext());
+                //这里需要考虑时序
+            }
+        });
 
     }
 
     //方案1：不带状态栏
-    private Bitmap screenShotWholeScreen(){
+    private Bitmap screenShotNormalScreen(){
         View mView = getWindow().getDecorView();
         mView.setDrawingCacheEnabled(true);
         mView.buildDrawingCache();
@@ -230,11 +213,7 @@ public class MainActivity extends Activity {
 
     //长截屏;
     //方案一：针对LinearLayout和ScrollView(未考虑内部嵌套其他可拖动view)
-<<<<<<< HEAD
-    public static Bitmap getLinearLayoutBitmap(LinearLayout linearLayout) {
-=======
     public static Bitmap screenShotOnLinearLayout(LinearLayout linearLayout) {
->>>>>>> dev
         int h = 0;
         Bitmap bitmap;
         for (int i = 0; i < linearLayout.getChildCount(); i++) {
@@ -248,23 +227,6 @@ public class MainActivity extends Activity {
         return bitmap;
     }
 
-<<<<<<< HEAD
-
-
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-
-=======
     //方案二：针对RecyclerView的截取(采用List存储Item的视图，需要考虑OOM的情况，经测试1000个item足以导致内存不足)
     /** https://gist.github.com/PrashamTrivedi/809d2541776c8c141d9a */
     public static Bitmap screenShotOnRecyclerView(RecyclerView view) {
@@ -320,7 +282,8 @@ public class MainActivity extends Activity {
     /**
      * http://stackoverflow.com/questions/12742343/android-get-screenshot-of-all-listview-items
      */
-    public static Bitmap screenShotOnListView(ListView listview) {
+    public static Bitmap screenShotOnListView(ListView listview)
+    {
 
         ListAdapter adapter = listview.getAdapter();
         int itemscount = adapter.getCount();
@@ -389,7 +352,7 @@ public class MainActivity extends Activity {
             public void run() {
                 scrollableViewRECUtil.stop();
             }
-        },10*1000);
+        },9*1000);
     }
     private void screenShotOnScrollableView(){
 
@@ -417,11 +380,49 @@ public class MainActivity extends Activity {
 
 
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void startIntent(){
+        if(intent != null && result != 0){
+            Log.i(TAG, "user agree the application to capture screen");
+            //Service1.mResultCode = resultCode;
+            //Service1.mResultData = data;
+            ((ShotApplication)getApplication()).setResult(result);
+            ((ShotApplication)getApplication()).setIntent(intent);
+            //Intent intent = new Intent(getApplicationContext(), Service1.class);
+            //startService(intent);
+            //Log.i(TAG, "start service Service1");
+        }else{
+            startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
+            screenShotHelper.mMediaProjectionManager1 = mMediaProjectionManager;
+            ((ShotApplication)getApplication()).setMediaProjectionManager(mMediaProjectionManager);
+        }
     }
+
+
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_MEDIA_PROJECTION) {
+            if (resultCode != Activity.RESULT_OK) {
+                return;
+            }else if(data != null && resultCode != 0){
+                Log.i(TAG, "user agree the application to capture screen");
+                //Service1.mResultCode = resultCode;
+                //Service1.mResultData = data;
+                result = resultCode;
+                intent = data;
+                ((ShotApplication)getApplication()).setResult(resultCode);
+                ((ShotApplication)getApplication()).setIntent(data);
+
+                Log.i(TAG, "start service Service1");
+
+
+            }
+        }
+    }
+
+
 
     @Override
     protected void onDestroy() {
@@ -429,7 +430,6 @@ public class MainActivity extends Activity {
     }
 
 
->>>>>>> dev
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");

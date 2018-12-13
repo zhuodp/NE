@@ -3,6 +3,7 @@ package com.example.zhuodp.sreenshot;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -37,6 +38,7 @@ public class ScrollableViewScreenShotUtil {
         view.postDelayed(new Runnable() {
             @Override
             public void run() {
+                Log.d("zhuodp","滑动事件分发");
                 if (isEnd) {
                     //停止时正好一屏则全部绘制，否则绘制部分
                     if ((view.getHeight() / 2 - (int) motionEvent.getY()) % view.getHeight() == 0) {
@@ -53,8 +55,9 @@ public class ScrollableViewScreenShotUtil {
                     int h = view.getHeight() * (bitmaps.size() - 1);
                     Bitmap bitmap = bitmaps.get(bitmaps.size() - 1);
                     h = h + bitmap.getHeight();
-                    Bitmap result = Bitmap.createBitmap(view.getWidth(), h, Bitmap.Config.RGB_565);
+                    Bitmap result = Bitmap.createBitmap(view.getWidth(), h, Bitmap.Config.ARGB_8888);//原本是RGB_565
                     Canvas canvas = new Canvas();
+                    canvas.drawRGB(255,255,255);
                     canvas.setBitmap(result);
                     for (int i = 0; i < bitmaps.size(); i++) {
                         Bitmap b = bitmaps.get(i);
@@ -83,7 +86,7 @@ public class ScrollableViewScreenShotUtil {
         isEnd = true;
     }
     private Bitmap rec() {
-        Bitmap film = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.RGB_565);
+        Bitmap film = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);//原本是RGB_565
         Canvas canvas = new Canvas();
         canvas.setBitmap(film);
         view.draw(canvas);

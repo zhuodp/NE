@@ -4,11 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.zhuodp.sreenshot"
-<<<<<<< HEAD
         minSdkVersion 21
-=======
-        minSdkVersion 16
->>>>>>> dev
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"

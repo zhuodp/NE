@@ -21,18 +21,31 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/btn_normalScreenShot"
         android:textSize="15sp"
-        android:text="LinearLayout"
+        android:text="Linear"
         />
 
-<<<<<<< HEAD
-=======
     <Button
         android:id="@+id/btn_listViewSreenShot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/btn_linearLayoutScreenShot"
         android:text="可滑动View"/>
->>>>>>> dev
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="状态栏"
+        android:id="@+id/btn_wholeScreenScreenShot"
+        android:layout_toRightOf="@id/btn_listViewSreenShot"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="长截屏"
+        android:layout_below="@id/btn_normalScreenShot"/>
+
+
     <ImageView
         android:id="@+id/id_screenShotResult"
         android:layout_width="200dp"
@@ -42,27 +55,12 @@
         android:layout_gravity="center_horizontal">
     </ImageView>
 
+
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
-        android:layout_below="@id/id_screenShotResult">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="800dp"
-            android:textSize="15sp"
-            android:text="Out of Bounds"
-            />
-    </LinearLayout>
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/linearLayout"
-        android:id="@+id/listView">
-
-    </ListView>
-=======
         android:layout_below="@id/id_screenShotResult"
         android:background="#ffffff">
         <ListView
@@ -80,6 +78,7 @@
         />
 
 
->>>>>>> dev
+
+
 
 </RelativeLayout>
