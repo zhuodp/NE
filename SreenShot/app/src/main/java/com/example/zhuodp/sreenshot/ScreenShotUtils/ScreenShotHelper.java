@@ -7,11 +7,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Picture;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.display.DisplayManager;
@@ -21,29 +19,24 @@ import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.WindowManager;
 import android.webkit.WebView;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
 
-import com.example.zhuodp.sreenshot.MainActivity;
+import com.example.zhuodp.sreenshot.TestActivity.MainActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -136,16 +129,24 @@ public class ScreenShotHelper {
         return mScreenShotResult;
     }
 
-
-
-
-
-
     // 单个View截屏，不支持可拖动View和DecorView
+    //方法一：屏幕内
     public Bitmap screenShotOnSingleView(View view){
         view.setDrawingCacheEnabled(true);
         view.buildDrawingCache();
         Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());
+        return bitmap;
+    }
+    public Bitmap screenShotOnSingleView2(View view){
+        /*view.measure(
+                MeasureSpec.makeMeasureSpec(view.getWidth(), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(view.getHeight(), MeasureSpec.UNSPECIFIED));
+        view.layout(view.getLeft(),view.getTop(),view.getLeft()+view.getMeasuredWidth(), view.getTop()-view.getMeasuredHeight());
+
+        view.setDrawingCacheEnabled(true);
+        view.invalidate();
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getDrawingCache());*/
         return bitmap;
     }
 
@@ -158,6 +159,20 @@ public class ScreenShotHelper {
         Canvas canvas = new Canvas(bmp);
         snapShot.draw(canvas);
         return bmp;
+    }
+    private Bitmap screenShotOnWebView2(WebView webView){
+        webView.measure(MeasureSpec.makeMeasureSpec(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED),
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        webView.layout(0, 0, webView.getMeasuredWidth(), webView.getMeasuredHeight());
+        webView.setDrawingCacheEnabled(true);
+        webView.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(webView.getMeasuredWidth(), webView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas bigCanvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        int iHeight = bitmap.getHeight();
+        bigCanvas.drawBitmap(bitmap, 0, iHeight, paint);
+        webView.draw(bigCanvas);
+        return bitmap;
     }
 
     // 屏幕显示范围内的LinearLayout
@@ -176,7 +191,7 @@ public class ScreenShotHelper {
     }
 
     // 屏幕显示范围内的ScrollView截屏
-    public static Bitmap screenShotOnScrollView(ScrollView scrollView) {
+    public  Bitmap screenShotOnScrollView(ScrollView scrollView) {
         int h = 0;
         Bitmap bitmap;
         for (int i = 0; i < scrollView.getChildCount(); i++) {
@@ -191,7 +206,7 @@ public class ScreenShotHelper {
     }
 
     // ListView截屏
-    public static Bitmap screenShotOnListView(ListView listview) {
+    public Bitmap screenShotOnListView(ListView listview) {
 
         ListAdapter adapter = listview.getAdapter();
         int itemscount = adapter.getCount();
@@ -202,8 +217,8 @@ public class ScreenShotHelper {
 
             View childView = adapter.getView(i, null, listview);
             childView.measure(
-                    View.MeasureSpec.makeMeasureSpec(listview.getWidth(), View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                    MeasureSpec.makeMeasureSpec(listview.getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 
             childView.layout(0, 0, childView.getMeasuredWidth(), childView.getMeasuredHeight());
             childView.setDrawingCacheEnabled(true);
@@ -230,6 +245,22 @@ public class ScreenShotHelper {
 
         return bigbitmap;
     }
+    public Bitmap screenShotOnListView2(ListView listView){
+        int h = 0;
+        Bitmap bitmap;
+        // 获取listView实际高度
+        for (int i = 0; i < listView.getChildCount(); i++) {
+            h += listView.getChildAt(i).getHeight();
+        }
+        Log.d(TAG, "实际高度:" + h);
+        Log.d(TAG, "list 高度:" + listView.getHeight());
+        // 创建对应大小的bitmap
+        bitmap = Bitmap.createBitmap(listView.getWidth(), h,
+                Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(bitmap);
+        listView.draw(canvas);
+        return bitmap;
+    }
 
     //RecyclerView截屏
     public static Bitmap screenShotOnRecyclerView(RecyclerView view) {
@@ -244,13 +275,14 @@ public class ScreenShotHelper {
 
             // Use 1/8th of the available memory for this memory cache.
             final int cacheSize = maxMemory / 8;
+            //用LruCache防止OOM
             LruCache<String, Bitmap> bitmaCache = new LruCache<>(cacheSize);
             for (int i = 0; i < size; i++) {
                 RecyclerView.ViewHolder holder = adapter.createViewHolder(view, adapter.getItemViewType(i));
                 adapter.onBindViewHolder(holder, i);
                 holder.itemView.measure(
-                        View.MeasureSpec.makeMeasureSpec(view.getWidth(), View.MeasureSpec.EXACTLY),
-                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                        MeasureSpec.makeMeasureSpec(view.getWidth(), MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
                 holder.itemView.layout(0, 0, holder.itemView.getMeasuredWidth(),
                         holder.itemView.getMeasuredHeight());
                 holder.itemView.setDrawingCacheEnabled(true);
@@ -284,6 +316,7 @@ public class ScreenShotHelper {
 
 
 
+    //滚动长截屏
 
 
 
