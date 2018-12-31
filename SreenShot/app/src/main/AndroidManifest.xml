@@ -3,20 +3,24 @@
     package="com.example.zhuodp.sreenshot">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<<<<<<< HEAD
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+=======
+>>>>>>> 6be7393cc54165342ef29c6bc357d5c073a77cfd
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_PROFILE"/>
 
 
     <application
+        android:name="com.example.zhuodp.sreenshot.ScreenShotUtils.ShotApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".TestActivity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,5 +28,6 @@
             </intent-filter>
         </activity>
     </application>
+
 
 </manifest>

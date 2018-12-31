@@ -1,4 +1,4 @@
-package com.example.zhuodp.sreenshot;
+package com.example.zhuodp.sreenshot.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
